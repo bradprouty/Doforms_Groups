@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group ID Lookup Table 7.23 - doForms Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 2rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    #searchInput:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      padding: 10px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .status-msg {
+      padding: 12px 16px;
+      background: #e3f2fd;
+      color: #1565c0;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      font-size: 14px;
+      text-align: center;
+      border-left: 4px solid #1565c0;
+    }
+
+    .status-msg.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left-color: #2e7d32;
+    }
+
+    .status-msg.warning {
+      background: #fff3e0;
+      color: #e65100;
+      border-left-color: #e65100;
+    }
+
+    .status-msg.error {
+      background: #ffebee;
+      color: #c62828;
+      border-left-color: #c62828;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #f5f5f5;
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #ddd;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      color: #555;
+    }
+
+    tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #4caf50;
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .record-count {
+      margin-top: 1rem;
+      font-size: 13px;
+      color: #999;
+      text-align: right;
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: #999;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+    }
+
+    .spinner {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .search-box {
+        min-width: auto;
+      }
+
+      th, td {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Group ID Lookup Table 7.23</h1>
+      <p>Live data from your doForms lookup project</p>
+    </div>
+
+    <div class="content">
+      <div class="controls">
+        <div class="search-box">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search across all fields..."
+          />
+        </div>
+        <button id="refreshBtn">
+          <span>🔄</span>
+          Refresh
+        </button>
+      </div>
+
+      <div id="statusMsg" class="status-msg">
+        Connecting to doForms webservice...
+      </div>
+
+      <div class="table-wrapper">
+        <table id="dataTable">
+          <thead>
+            <tr id="headerRow">
+              <th>Column 1</th>
+              <th>Column 2</th>
+              <th>Column 3</th>
+              <th>Column 4</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="4" class="loading">Loading data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="record-count" id="recordCount">Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    const WS_URL = 'vfl$$07062023103019$$Published$$07292026160108';
+    const WS_PWD = 'VFLGroups26!';
+    const WS_ENDPOINT = 'https://wss.mydoforms.com/webservice/dataservice';
+
+    let allData = [];
+    let filteredData = [];
+    let columnHeaders = [];
+
+    async function loadData() {
+      const status = document.getElementById('statusMsg');
+      
+      try {
+        status.textContent = 'Connecting to webservice...';
+        status.className = 'status-msg';
+        
+        const url = `${WS_ENDPOINT}?url=${encodeURIComponent(WS_URL)}&pwd=${encodeURIComponent(WS_PWD)}`;
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+          status.textContent = 'Connected but no data returned. Check your form configuration.';
+          status.className = 'status-msg warning';
+          return;
+        }
+        
+        let records = Array.isArray(data) ? data : data.data || data.records || [];
+        
+        if (records.length === 0) {
+          status.textContent = 'Connected but no records found.';
+          status.className = 'status-msg warning';
+          return;
+        }
+        
+        if (records.length > 0) {
+          columnHeaders = Object.keys(records[0]);
+        }
+        
+        allData = records.map((rec, idx) => ({
+          index: idx + 1,
+          data: rec
+        }));
+        
+        filteredData = [...allData];
+        
+        const thead = document.querySelector('thead tr');
+        thead.innerHTML = columnHeaders.slice(0, 4).map(col => 
+          `<th>${escapeHtml(col)}</th>`
+        ).join('');
+        
+        status.textContent = `✓ Loaded ${allData.length} records`;
+        status.className = 'status-msg success';
+        
+        renderTable();
+        updateCount();
+        
+      } catch (error) {
+        console.error('Load error:', error);
+        status.textContent = `Error: ${error.message}`;
+        status.className = 'status-msg error';
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      
+      if (filteredData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty-state">
+              No records found
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      const cols = columnHeaders.slice(0, 4);
+      tbody.innerHTML = filteredData.map(row => `
+        <tr>
+          ${cols.map(col => `
+            <td>${escapeHtml(String(row.data[col] || '').substring(0, 100))}</td>
+          `).join('')}
+        </tr>
+      `).join('');
+    }
+
+    function updateCount() {
+      const count = document.getElementById('recordCount');
+      count.textContent = `Showing ${filteredData.length} of ${allData.length} records • ${columnHeaders.length} columns`;
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function filterData(searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filteredData = allData.filter(row => {
+        return columnHeaders.some(col => 
+          String(row.data[col] || '').toLowerCase().includes(term)
+        );
+      });
+      renderTable();
+      updateCount();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      filterData(e.target.value);
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      loadData();
+    });
+
+    loadData();
+    setInterval(loadData, 30000);
+  </script>
+</body>
+</html>
